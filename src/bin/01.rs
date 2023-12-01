@@ -55,17 +55,8 @@ fn solve(input: &str, with_words: bool) -> Option<u32> {
             continue;
         }
 
-        let mut min = usize::max_value();
-        let mut max: usize = 0;
-        for (pos, _) in digits.iter() {
-            if *pos < min {
-                min = *pos;
-            }
-
-            if *pos > max {
-                max = *pos;
-            }
-        }
+        let min = *digits.keys().min().unwrap_or(&usize::max_value());
+        let max = *digits.keys().max().unwrap_or(&0);
 
         values.push(digits[&min] * 10 + digits[&max]);
     }
