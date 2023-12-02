@@ -55,8 +55,8 @@ fn solve(input: &str, with_words: bool) -> Option<u32> {
             continue;
         }
 
-        let min = *digits.keys().min().unwrap_or(&usize::max_value());
-        let max = *digits.keys().max().unwrap_or(&0);
+        let min = *digits.keys().min().unwrap();
+        let max = *digits.keys().max().unwrap();
 
         values.push(digits[&min] * 10 + digits[&max]);
     }
