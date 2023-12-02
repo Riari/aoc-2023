@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use lazy_static::lazy_static;
 use regex::Regex;
 
+advent_of_code::solution!(1);
+
 lazy_static! {
     static ref RE_DIGITS: Regex = Regex::new(r"\d").unwrap();
     static ref WORD_MAP: HashMap<String, u32> = [
@@ -16,8 +18,6 @@ lazy_static! {
         ("nine".to_string(), 9)
     ].iter().cloned().collect();
 }
-
-advent_of_code::solution!(1);
 
 fn solve(input: &str, with_words: bool) -> Option<u32> {
     let mut values: Vec<u32> = Vec::new();

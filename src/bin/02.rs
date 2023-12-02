@@ -1,14 +1,6 @@
 use std::collections::HashMap;
 
-use lazy_static::lazy_static;
-use regex::Regex;
-
 advent_of_code::solution!(2);
-
-lazy_static! {
-    static ref RE_GAME: Regex = Regex::new(r"Game (\d+):\s*((?:\d+\s\w+[,;]?\s*)+)").unwrap();
-    static ref RE_SET: Regex = Regex::new(r"(\d+)\s(\w+)").unwrap();
-}
 
 const MAX_RED: u32 = 12;
 const MAX_GREEN: u32 = 13;
@@ -19,8 +11,8 @@ fn solve(input: &str, powers: bool) -> Option<u32> {
     let mut game_minimums: Vec<(u32, u32, u32)> = vec![];
 
     for line in input.lines() {
-        let game = RE_GAME.captures(line)?;
-        let game_id = game[1].parse::<u32>().unwrap();
+        let mut parts = line.split(':').into_iter();
+        let game_id = parts.next().unwrap()[5..].parse::<u32>().unwrap();
 
         let mut is_valid = true;
         let mut counts: HashMap<String, u32> = [
@@ -29,11 +21,11 @@ fn solve(input: &str, powers: bool) -> Option<u32> {
             ("blue".to_string(), if powers { 0 } else { MAX_BLUE }),
         ].iter().cloned().collect();
 
-        game[2].split(';').for_each(|list| {
+        parts.next().unwrap().split(';').for_each(|list| {
             list.split(',').for_each(|cube| {
-                let caps = RE_SET.captures(cube).unwrap();
-                let count = caps[1].parse::<u32>().unwrap();
-                let colour = &caps[2].to_string();
+                let parts = cube.split_whitespace().collect::<Vec<_>>();
+                let count = parts[0].parse::<u32>().unwrap();
+                let colour = parts[1];
                 if counts.get(colour).unwrap() < &count {
                     if powers {
                         *counts.get_mut(colour).unwrap() = count;
