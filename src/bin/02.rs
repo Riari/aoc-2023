@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use lazy_static::lazy_static;
 use regex::Regex;
 
@@ -21,32 +23,29 @@ fn solve(input: &str, powers: bool) -> Option<u32> {
         let game_id = game[1].parse::<u32>().unwrap();
 
         let mut is_valid = true;
-        let mut counts = (0, 0, 0);
+        let mut counts: HashMap<String, u32> = [
+            ("red".to_string(), if powers { 0 } else { MAX_RED }),
+            ("green".to_string(), if powers { 0 } else { MAX_GREEN }),
+            ("blue".to_string(), if powers { 0 } else { MAX_BLUE }),
+        ].iter().cloned().collect();
 
         game[2].split(';').for_each(|list| {
             list.split(',').for_each(|cube| {
                 let caps = RE_SET.captures(cube).unwrap();
                 let count = caps[1].parse::<u32>().unwrap();
-                match caps[2].trim() {
-                    "red" => {
-                        if powers && count > counts.0 { counts.0 = count; }
-                        else if count > MAX_RED { is_valid = false; }
-                    },
-                    "green" => {
-                        if powers && count > counts.1 { counts.1 = count; }
-                        else if count > MAX_GREEN { is_valid = false; }
-                    },
-                    "blue" => {
-                        if powers && count > counts.2 { counts.2 = count; }
-                        else if count > MAX_BLUE { is_valid = false; }
-                    },
-                    _ => panic!("Unknown colour!")
+                let colour = &caps[2].to_string();
+                if counts.get(colour).unwrap() < &count {
+                    if powers {
+                        *counts.get_mut(colour).unwrap() = count;
+                    } else {
+                        is_valid = false;
+                    }
                 }
             });
         });
 
         if powers {
-            game_minimums.push(counts);
+            game_minimums.push((counts["red"], counts["green"], counts["blue"]));
             continue;
         }
 
