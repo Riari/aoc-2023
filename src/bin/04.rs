@@ -15,16 +15,14 @@ fn parse(input: &str) {
     }
 
     for (i, line) in input.lines().enumerate() {
-        let parts = line.split(':').collect::<Vec<&str>>();
-        let numbers = parts[1].split(" | ").collect::<Vec<&str>>();
-        let winning = numbers[0].split_whitespace().into_iter().map(|n| n.parse::<u32>().unwrap()).collect::<Vec<u32>>();
-        let have = numbers[1].split_whitespace().into_iter().map(|n| n.parse::<u32>().unwrap()).collect::<Vec<u32>>();
-        let mut matching_count = 0;
-        for number in have.iter() {
-            if winning.contains(number) {
-                matching_count += 1;
-            }
-        }
+        let numbers = line.split(':').collect::<Vec<&str>>()[1].split(" | ").collect::<Vec<&str>>();
+        let winning = numbers[0]
+        .split_whitespace()
+        .map(|n| n.parse::<u32>().unwrap());
+        let have = numbers[1]  
+        .split_whitespace()
+        .map(|n| n.parse::<u32>().unwrap());
+        let matching_count = winning.filter(|n| have.clone().any(|m| m == *n)).count() as u32;
 
         // index => number of matching numbers, number of copies
         stack.insert(i, (matching_count, 1));
@@ -38,6 +36,11 @@ fn solve(input: &str, award_cards: bool) -> Option<u32> {
     let mut total_cards = stack.len();
     for stack_index in 0..stack.len() {
         let card = &stack[&stack_index].clone();
+
+        if card.0 == 0 {
+            continue;
+        }
+
         if award_cards {
             for win_index in 0..card.0 {
                 total_cards += card.1 as usize;
@@ -45,19 +48,15 @@ fn solve(input: &str, award_cards: bool) -> Option<u32> {
             }
             continue;
         }
-
-        if card.0 == 0 {
-            continue;
-        }
         
-        score += 2u32.pow(card.0);
+        score += 2u32.pow(card.0 - 1);
     }
 
     if award_cards {
         return Some(total_cards as u32);
     }
 
-    Some(score / 2)
+    Some(score)
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
