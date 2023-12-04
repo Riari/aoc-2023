@@ -1,64 +1,63 @@
 use std::collections::HashMap;
+use std::sync::Mutex;
+use lazy_static::lazy_static;
 
 advent_of_code::solution!(4);
 
-#[derive(Clone)]
-struct Card {
-    winning: Vec<u32>,
-    have: Vec<u32>,
-    copies: u32,
+lazy_static! {
+    static ref STACK: Mutex<HashMap<usize, (u32, u32)>> = Mutex::new(HashMap::new());
 }
 
-fn parse(input: &str) -> HashMap<usize, Card> {
-    let mut cards: HashMap<usize, Card> = HashMap::new();
+fn parse(input: &str) {
+    let mut stack = STACK.lock().unwrap();
+    if stack.len() > 0 {
+        return;
+    }
+
     for (i, line) in input.lines().enumerate() {
         let parts = line.split(':').collect::<Vec<&str>>();
         let numbers = parts[1].split(" | ").collect::<Vec<&str>>();
         let winning = numbers[0].split_whitespace().into_iter().map(|n| n.parse::<u32>().unwrap()).collect::<Vec<u32>>();
         let have = numbers[1].split_whitespace().into_iter().map(|n| n.parse::<u32>().unwrap()).collect::<Vec<u32>>();
-        cards.insert(i, Card { winning, have, copies: 1 });
-    }
+        let mut matching_count = 0;
+        for number in have.iter() {
+            if winning.contains(number) {
+                matching_count += 1;
+            }
+        }
 
-    cards
+        // index => number of matching numbers, number of copies
+        stack.insert(i, (matching_count, 1));
+    }
 }
 
 fn solve(input: &str, award_cards: bool) -> Option<u32> {
-    let mut stacks = parse(input);
+    parse(input);
+    let mut stack = STACK.lock().unwrap();
     let mut score = 0;
-    let mut total_cards = stacks.len();
-    for stack_index in 0..stacks.len() {
-        let card = &stacks[&stack_index].clone();
-        for _ in 0..card.copies {
-            let mut winning_numbers = 0;
-            let mut win_index = 0;
-            for number in card.have.iter() {
-                if card.winning.contains(&number) {
-                    if !award_cards {
-                        winning_numbers += 1;
-                        continue;
-                    }
-
-                    win_index += 1;
-                    stacks.get_mut(&(stack_index + win_index)).unwrap().copies += 1;
-                    total_cards += 1;
-                }
+    let mut total_cards = stack.len();
+    for stack_index in 0..stack.len() {
+        let card = &stack[&stack_index].clone();
+        if award_cards {
+            for win_index in 0..card.0 {
+                total_cards += card.1 as usize;
+                stack.get_mut(&(stack_index + win_index as usize + 1)).unwrap().1 += card.1;
             }
-
-            if !award_cards && winning_numbers > 0 {
-                let mut card_score = 1;
-                for _ in 1..winning_numbers {
-                    card_score = card_score * 2;
-                }
-                score += card_score;
-            }
+            continue;
         }
+
+        if card.0 == 0 {
+            continue;
+        }
+        
+        score += 2u32.pow(card.0);
     }
 
     if award_cards {
         return Some(total_cards as u32);
     }
-    
-    Some(score)
+
+    Some(score / 2)
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
