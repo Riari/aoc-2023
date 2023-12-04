@@ -16,12 +16,8 @@ fn parse(input: &str) {
 
     for (i, line) in input.lines().enumerate() {
         let numbers = line.split(':').collect::<Vec<&str>>()[1].split(" | ").collect::<Vec<&str>>();
-        let winning = numbers[0]
-        .split_whitespace()
-        .map(|n| n.parse::<u32>().unwrap());
-        let have = numbers[1]  
-        .split_whitespace()
-        .map(|n| n.parse::<u32>().unwrap());
+        let winning = numbers[0].split_whitespace().map(|n| n.parse::<u32>().unwrap());
+        let have = numbers[1]  .split_whitespace().map(|n| n.parse::<u32>().unwrap());
         let matching_count = winning.filter(|n| have.clone().any(|m| m == *n)).count() as u32;
 
         // index => number of matching numbers, number of copies
