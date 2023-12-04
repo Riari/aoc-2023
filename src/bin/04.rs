@@ -39,9 +39,7 @@ fn solve(input: &str, award_cards: bool) -> Option<u32> {
                     }
 
                     win_index += 1;
-                    let card = stacks.get_mut(&(stack_index + win_index));
-
-                    card.unwrap().copies += 1;
+                    stacks.get_mut(&(stack_index + win_index)).unwrap().copies += 1;
                     total_cards += 1;
                 }
             }
