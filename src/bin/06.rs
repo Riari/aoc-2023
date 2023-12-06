@@ -22,11 +22,16 @@ fn solve(input: &str, concat_values: bool) -> Option<u64> {
         let distance = distances[i];
 
         let mut records: Vec<u64> = vec![];
+        let mut prev_record = 0;
         for ms in 1..time {
             let record = ms * (time - ms);
             if record > distance {
                 records.push(record);
+            } else if record < prev_record {
+                break;
             }
+
+            prev_record = record;
         }
 
         records_list.push(records);
