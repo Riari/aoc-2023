@@ -64,12 +64,10 @@ fn solve(input: &str, j_as_joker: bool) -> Option<u32> {
         }
 
         group_sizes = group_sizes.into_iter().filter(|count| *count > 1).collect();
-
         let g1 = group_sizes.get(0).unwrap_or(&0);
         let g2 = group_sizes.get(1).unwrap_or(&0);
-        let score = 3 * g1 + g2;
 
-        Hand { cards, score, bid }
+        Hand { cards, score: 3 * g1 + g2, bid }
     }).collect();
 
     set.sort_by(|a, b| {
