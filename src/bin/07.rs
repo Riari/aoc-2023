@@ -51,35 +51,23 @@ fn solve(input: &str, j_as_joker: bool) -> Option<u32> {
 
         let bid = parts[1].parse().unwrap();
 
-        let mut occurrences: Vec<(u32, u32)> = card_map.clone().into_iter()
-            .map(|(card, count)| (card, count)).collect();
-
-        occurrences.sort_by(|a, b| {
-            let order_count = a.1.cmp(&b.1);
-            if order_count == Ordering::Equal {
-                return a.0.cmp(&b.0);
-            }
-
-            order_count
-        });
-        occurrences.reverse();
+        let mut group_sizes: Vec<u32> = card_map.values().cloned().collect();
+        group_sizes.sort();
+        group_sizes.reverse();
 
         if j_as_joker {
             if joker_count == 5 {
                 return Hand { cards, score: 15, bid };
             }
 
-            occurrences[0].1 += joker_count;
+            group_sizes[0] += joker_count;
         }
 
-        occurrences = occurrences.into_iter().filter(|(_, count)| *count > 1).collect();    
+        group_sizes = group_sizes.into_iter().filter(|count| *count > 1).collect();
 
-        let mut score = 0;
-        if occurrences.len() > 0 {
-            let g1 = occurrences[0].1;
-            let g2 = if occurrences.len() > 1 { occurrences[1].1 } else { 0 };
-            score = 3 * g1 + g2;
-        }
+        let g1 = group_sizes.get(0).unwrap_or(&0);
+        let g2 = group_sizes.get(1).unwrap_or(&0);
+        let score = 3 * g1 + g2;
 
         Hand { cards, score, bid }
     }).collect();
