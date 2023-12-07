@@ -20,63 +20,82 @@ lazy_static! {
         ('3', 3),
         ('2', 2),
     ].iter().cloned().collect();
+    static ref JOKER_VALUE: u32 = 1;
 }
 
-type Hand = Vec<u32>;
+struct Hand {
+    cards: Vec<u32>,
+    score: u32,
+    bid: u32
+}
 
-fn parse(input: &str) -> Vec<(Hand, u32, u32)> {
-    let mut card_map: HashMap<char, u32> = HashMap::new();
-    let mut hands: Vec<(Hand, u32, u32)> = input.lines().map(|line| {
+fn solve(input: &str, j_as_joker: bool) -> Option<u32> {
+    let mut card_map: HashMap<u32, u32> = HashMap::new();
+    let mut set: Vec<Hand> = input.lines().map(|line| {
+        card_map.clear();
+
         let parts = line.split_whitespace().collect::<Vec<_>>();
-        let mut hand = Vec::new();
+        let mut cards: Vec<u32> = Vec::new();
+        let mut joker_count = 0;
         for c in parts[0].chars() {
-            *card_map.entry(c).or_insert(0) += 1;
-            hand.push(CARD_TO_STRENGTH[&c]);
+            let mut strength: u32 = CARD_TO_STRENGTH[&c];
+            if j_as_joker && c == 'J' {
+                strength = *JOKER_VALUE;
+                joker_count += 1;
+            } else {
+                *card_map.entry(strength).or_insert(0) += 1;
+            }
+
+            cards.push(strength);
         }
 
         let bid = parts[1].parse().unwrap();
 
-        let card_type: Vec<u32> = card_map.clone().into_iter().map(|(_, count)| count).collect();
+        let mut occurrences: Vec<(u32, u32)> = card_map.clone().into_iter()
+            .map(|(card, count)| (card, count)).collect();
 
-        let mut rank = 0;
-        if card_type.contains(&5) {
-            rank = 6;
-        } else if card_type.contains(&4) {
-            rank = 5;
-        } else if card_type.contains(&3) && card_type.contains(&2) {
-            rank = 4;
-        } else if card_type.contains(&3) {
-            rank = 3;
-        } else if card_type.iter().filter(|count| **count == 2).count() == 2 {
-            rank = 2;
-        } else if card_type.contains(&2) {
-            rank = 1;
+        occurrences.sort_by(|a, b| {
+            let order_count = a.1.cmp(&b.1);
+            if order_count == Ordering::Equal {
+                return a.0.cmp(&b.0);
+            }
+
+            order_count
+        });
+        occurrences.reverse();
+
+        let mut score = 0;
+        if occurrences.len() > 0 {
+            if j_as_joker {
+                occurrences[0].1 += joker_count;
+            }
+
+            occurrences = occurrences.into_iter().filter(|(_, count)| *count > 1).collect();    
+
+            if occurrences.len() > 0 {
+                let g1 = occurrences[0].1;
+                let g2 = if occurrences.len() > 1 { occurrences[1].1 } else { 0 };
+                score = 3 * g1 + g2;
+            }
+        } else if j_as_joker {
+            score = 15; // five jokers
         }
 
-        card_map.clear();
-
-        (hand, bid, rank)
+        Hand { cards, score, bid }
     }).collect();
 
-    hands.sort_by(|a, b| a.2.partial_cmp(&b.2).unwrap());
-
-    hands
-}
-
-pub fn part_one(input: &str) -> Option<u32> {
-    let mut hands = parse(input);
-
-    hands.sort_by(|a, b| {
-        if a.2 != b.2 {
-            return Ordering::Equal;
+    set.sort_by(|a, b| {
+        let score_order = a.score.cmp(&b.score);
+        if score_order != Ordering::Equal {
+            return score_order;
         }
 
-        for pair in a.0.iter().zip(b.0.iter()).into_iter() {
-            let ordering = pair.0.cmp(pair.1);
+        for (a, b) in a.cards.iter().zip(b.cards.iter()).into_iter() {
+            let ordering = a.cmp(b);
             if ordering == Ordering::Equal {
                 continue;
             }
-            
+
             return ordering;
         }
 
@@ -84,15 +103,19 @@ pub fn part_one(input: &str) -> Option<u32> {
     });
 
     let mut winnings = 0;
-    for (adjusted_rank, hand) in hands.iter().enumerate() {
-        winnings += (adjusted_rank as u32 + 1) * hand.1;
+    for (rank, hand) in set.iter().enumerate() {
+        winnings += (rank as u32 + 1) * hand.bid;
     }
 
     Some(winnings)
 }
 
+pub fn part_one(input: &str) -> Option<u32> {
+    solve(input, false)
+}
+
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    solve(input, true)
 }
 
 #[cfg(test)]
@@ -102,12 +125,12 @@ mod tests {
     #[test]
     fn test_part_one() {
         let result = part_one(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, Some(6440));
+        assert_eq!(result, Some(6592));
     }
 
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(6839));
     }
 }
