@@ -64,21 +64,21 @@ fn solve(input: &str, j_as_joker: bool) -> Option<u32> {
         });
         occurrences.reverse();
 
+        if j_as_joker {
+            if joker_count == 5 {
+                return Hand { cards, score: 15, bid };
+            }
+
+            occurrences[0].1 += joker_count;
+        }
+
+        occurrences = occurrences.into_iter().filter(|(_, count)| *count > 1).collect();    
+
         let mut score = 0;
         if occurrences.len() > 0 {
-            if j_as_joker {
-                occurrences[0].1 += joker_count;
-            }
-
-            occurrences = occurrences.into_iter().filter(|(_, count)| *count > 1).collect();    
-
-            if occurrences.len() > 0 {
-                let g1 = occurrences[0].1;
-                let g2 = if occurrences.len() > 1 { occurrences[1].1 } else { 0 };
-                score = 3 * g1 + g2;
-            }
-        } else if j_as_joker {
-            score = 15; // five jokers
+            let g1 = occurrences[0].1;
+            let g2 = if occurrences.len() > 1 { occurrences[1].1 } else { 0 };
+            score = 3 * g1 + g2;
         }
 
         Hand { cards, score, bid }
