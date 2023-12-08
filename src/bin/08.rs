@@ -1,15 +1,25 @@
 use std::collections::HashMap;
+use advent_of_code::lcm_of_vec;
 
 advent_of_code::solution!(8);
 
-pub fn part_one(input: &str) -> Option<u32> {
+fn solve(input: &str, ghost_mode: bool) -> Option<u64> {
     let mut lines = input.lines();
     let instructions: Vec<char> = lines.next().unwrap().chars().collect();
     lines.next();
+
     let mut map: HashMap<&str, (&str, &str)> = HashMap::new();
+    let mut positions: Vec<&str> = vec![];
+    if !ghost_mode {
+        positions.push("AAA");
+    }
+
     for line in lines {
         let parts = line.split(" = ").collect::<Vec<_>>();
         let start = parts[0];
+        if ghost_mode && start.ends_with('A') {
+            positions.push(start);
+        }
         let destinations = parts[1].split(", ").collect::<Vec<_>>();
         let mut a = destinations[0].chars();
         a.next();
@@ -19,24 +29,45 @@ pub fn part_one(input: &str) -> Option<u32> {
         map.insert(start, (a.as_str(), b.as_str()));
     }
 
-    let mut current_node_label = "AAA";
-    let mut i = 0;
-    while current_node_label != "ZZZ" {
-        let current_node = map.get(current_node_label).unwrap();
-        match instructions[i % instructions.len()] {
-            'L' => current_node_label = current_node.0,
-            'R' => current_node_label = current_node.1,
-            _ => unreachable!()
+    let mut steps: usize = 0;
+    let mut loop_sizes: HashMap<u64, u64> = HashMap::new();
+    loop {
+        for i in 0..positions.len() {
+            if loop_sizes.contains_key(&(i as u64)) {
+                continue;
+            }
+
+            let current_node = map.get(positions[i]).unwrap();
+            match instructions[steps % instructions.len()] {
+                'L' => positions[i] = current_node.0,
+                'R' => positions[i] = current_node.1,
+                _ => unreachable!()
+            }
+
+            if !ghost_mode && positions[i] == "ZZZ"
+                || ghost_mode && positions[i].ends_with('Z') {
+                loop_sizes.insert(i as u64, steps as u64 + 1);
+            }
         }
 
-        i += 1;
+        steps += 1;
+
+        if loop_sizes.len() == positions.len() {
+            break;
+        }
     }
-    
-    Some(i as u32)
+
+    let result = lcm_of_vec(loop_sizes.values().cloned().collect());
+
+    Some(result as u64)
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
-    None
+pub fn part_one(input: &str) -> Option<u64> {
+    solve(input, false)
+}
+
+pub fn part_two(input: &str) -> Option<u64> {
+    solve(input, true)
 }
 
 #[cfg(test)]
