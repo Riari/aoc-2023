@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
-use colored::Colorize;
 use lazy_static::lazy_static;
 
 advent_of_code::solution!(10);
