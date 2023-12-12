@@ -4,22 +4,20 @@ use lazy_static::lazy_static;
 
 advent_of_code::solution!(10);
 
-const N: usize = 0;
-const E: usize = 1;
-const S: usize = 2;
-const W: usize = 3;
+const N: (isize, isize) = (0, -1);
+const E: (isize, isize) = (1, 0);
+const S: (isize, isize) = (0, 1);
+const W: (isize, isize) = (-1, 0);
 
 lazy_static! {
-    static ref NESW: Vec<(isize, isize)> = vec![(0, -1), (1, 0), (0, 1), (-1, 0)];
-
-    /// Map of pipe symbols to indices into possible entry and exit directions.
+    /// Map of pipe symbols to maps of possible entry and exit directions.
     static ref PIPE_MAP: HashMap<char, HashMap<(isize, isize), (isize, isize)>> = HashMap::from([
-        ('|', HashMap::from([(NESW[N], NESW[N]), (NESW[S], NESW[S])])),
-        ('-', HashMap::from([(NESW[E], NESW[E]), (NESW[W], NESW[W])])),
-        ('F', HashMap::from([(NESW[N], NESW[E]), (NESW[W], NESW[S])])),
-        ('7', HashMap::from([(NESW[E], NESW[S]), (NESW[N], NESW[W])])),
-        ('J', HashMap::from([(NESW[S], NESW[W]), (NESW[E], NESW[N])])),
-        ('L', HashMap::from([(NESW[W], NESW[N]), (NESW[S], NESW[E])])),
+        ('|', HashMap::from([(N, N), (S, S)])),
+        ('-', HashMap::from([(E, E), (W, W)])),
+        ('F', HashMap::from([(N, E), (W, S)])),
+        ('7', HashMap::from([(E, S), (N, W)])),
+        ('J', HashMap::from([(S, W), (E, N)])),
+        ('L', HashMap::from([(W, N), (S, E)])),
     ]);
 
     static ref CORNERS: Vec<char> = vec!['F', '7', 'J', 'L'];
@@ -53,7 +51,7 @@ fn solve(input: &str, calculate_area: bool) -> Option<u32> {
     vertices.push(coords);
 
     let mut next_direction: (isize, isize) = (0, 0);
-    for direction in NESW.iter() {
+    for direction in vec![N, E, S, W].iter() {
         let destination_x = coords.0 as isize + direction.0;
         let destination_y = coords.1 as isize + direction.1;
         if destination_x < 0 || destination_y < 0 {
