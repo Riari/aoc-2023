@@ -71,7 +71,6 @@ fn try_fold(pattern: &Vec<Vec<char>>, rotate: bool, with_smudges: bool) -> Optio
 }
 
 fn solve(input: &str, with_smudges: bool) -> Option<u32> {
-
     let patterns = parse(input);
     let mut reflected_cols = 0;
     let mut reflected_rows = 0;
