@@ -22,7 +22,7 @@ impl Box {
         }
     }
 
-    fn add_lens<'a>(&mut self, label: &str, focal_length: u32) {
+    fn add_lens(&mut self, label: &str, focal_length: u32) {
         if let Some(index) = self.get_lens_index(label) {
             self.lenses[index] = (label.into(), focal_length);
         } else {
