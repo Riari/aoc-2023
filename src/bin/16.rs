@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::cmp::max;
 use std::collections::HashSet;
 use std::result::Result;
 
@@ -157,33 +158,19 @@ pub fn part_one<'a>(input: &str) -> Option<u32> {
 
 pub fn part_two(input: &str) -> Option<u32> {
     let grid = parse(input);
-    let mut max: u32 = 0;
+    let mut max_energised: u32 = 0;
 
     for x in 0..grid[0].len() {
-        let mut energised = simulate(&grid, (x, 0), SOUTH)?;
-        if energised > max {
-            max = energised;
-        }
-
-        energised = simulate(&grid, (x, grid.len() - 1), NORTH)?;
-        if energised > max {
-            max = energised;
-        }
+        max_energised = max(simulate(&grid, (x, 0), SOUTH)?, max_energised);
+        max_energised = max(simulate(&grid, (x, grid.len() - 1), NORTH)?, max_energised);
     }
 
     for y in 0..grid.len() {
-        let mut energised = simulate(&grid, (0, y), EAST)?;
-        if energised > max {
-            max = energised;
-        }
-
-        energised = simulate(&grid, (grid[0].len() - 1, y), WEST)?;
-        if energised > max {
-            max = energised;
-        }
+        max_energised = max(simulate(&grid, (0, y), EAST)?, max_energised);
+        max_energised = max(simulate(&grid, (grid[0].len() - 1, y), WEST)?, max_energised);
     }
 
-    Some(max as u32)
+    Some(max_energised as u32)
 }
 
 #[cfg(test)]
