@@ -151,7 +151,7 @@ fn simulate(grid: &Grid, start_position: Position, start_direction: Direction) -
     Some(energised.len() as u32)
 }
 
-pub fn part_one<'a>(input: &str) -> Option<u32> {
+pub fn part_one(input: &str) -> Option<u32> {
     let grid = parse(input);
     simulate(&grid, (0, 0), EAST)
 }
