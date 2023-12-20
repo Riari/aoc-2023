@@ -205,7 +205,7 @@ fn count_accepted_combos(ranges: &Vec<(u64, u64)>, status: String, workflows: &H
         let step = &workflow.steps[i];
         let rule = step.rule.as_ref().unwrap();
 
-        let (start, end) = ranges_clone[rule.category].clone();
+        let (start, end) = ranges_clone[rule.category];
 
         let valid_range: (u64, u64);
         let invalid_range: (u64, u64);
