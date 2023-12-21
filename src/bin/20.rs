@@ -64,8 +64,6 @@ impl Module for Conjunction {
     }
 
     fn get_output(&mut self) -> u8 {
-        dbg!(&self.inputs);
-        // dbg!(&self.hi_senders, &self.lo_senders);
         self.output
     }
 }
@@ -93,7 +91,6 @@ fn parse(input: &str) -> (ModuleMap, ConnectionMap) {
     let mut modules: HashMap<String, Box<dyn Module>> = HashMap::new();
     let mut connections: HashMap<String, Vec<String>> = HashMap::new();
 
-    // Create modules
     for line in input.lines() {
         let mut parts = line.split(" -> ");
         let identifier = parts.next().unwrap();
@@ -151,19 +148,7 @@ pub fn part_one(input: &str) -> Option<u64> {
     let mut hi_sent = 0;
     let mut lo_sent = 0;
     for _ in 0..1000 {
-        let broadcaster = modules.get_mut("broadcaster").unwrap();
-        broadcaster.receive(&"button".to_string(), LO);
-        let output = broadcaster.get_output();
-        for destination in connections.get("broadcaster").unwrap() {
-            if output == HI {
-                hi_sent += 1;
-            } else {
-                lo_sent += 1;
-            }
-
-            queue.push_back(("broadcaster".to_string(), destination.clone(), output));
-        }
-
+        queue.push_back(("button".to_string(), "broadcaster".to_string(), LO));
         while !queue.is_empty() {
             let (sender, receiver, value) = queue.pop_front().unwrap();
             if let Some(module) = modules.get_mut(&receiver) {
@@ -184,6 +169,8 @@ pub fn part_one(input: &str) -> Option<u64> {
             }
         }
     }
+
+    dbg!(hi_sent, lo_sent);
 
     Some(hi_sent * lo_sent)
 }
