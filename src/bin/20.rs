@@ -150,8 +150,7 @@ fn solve(input: &str, is_p2: bool) -> Option<u64> {
         // The solution for part 2 assumes the following:
         // - There is a single conjunction module that sends to rx
         // - There are four conjunction modules that send to the one that sends to rx
-        // Therefore the solution can be solved by finding the LCM of the cycle counts of those four
-        // antepenultimate modules.
+        // Therefore the LCM of the cycle counts of those four antepenultimate modules should be the answer.
 
         // sender_to_rx is the module that sends to rx
         (sender_to_rx, _) = connections
