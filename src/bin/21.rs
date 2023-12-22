@@ -5,23 +5,40 @@ advent_of_code::solution!(21);
 
 type Position = (isize, isize);
 
+struct Map {
+    value: Vec<Vec<char>>,
+    size: isize,
+}
+
+impl Map {
+    fn new(input: &str) -> Self {
+        let value: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+        let size = value.len() as isize;
+        Map { value, size }
+    }
+
+    fn get(&self, mut x: isize, mut y: isize) -> char {
+        if x < 0 {
+            x = self.size - x;
+        }
+        if y < 0 {
+            y = self.size - y;
+        }
+
+        self.value[(y % self.size) as usize][(x % self.size) as usize]
+    }
+}
+
 const N: Position = (0, -1);
 const S: Position = (0, 1);
 const E: Position = (1, 0);
 const W: Position = (-1, 0);
 
-fn is_valid_position(x: isize, y: isize, map_size: isize) -> bool {
-    x >= 0 && y >= 0 && x < map_size && y < map_size
-}
-
-fn get_plots_adjacent_to(x: isize, y: isize, map: &Vec<Vec<char>>) -> Vec<Position> {
+fn get_plots_adjacent_to(x: isize, y: isize, map: &Map) -> Vec<Position> {
     let mut plots = vec![];
     for (dx, dy) in &[N, S, E, W] {
         let (nx, ny) = (x + dx, y + dy);
-        if !is_valid_position(nx, ny, map.len() as isize) {
-            continue;
-        }
-        if map[ny as usize][nx as usize] == '.' {
+        if map.get(nx, ny) == '.' {
             plots.push((nx, ny));
         }
     }
@@ -29,15 +46,14 @@ fn get_plots_adjacent_to(x: isize, y: isize, map: &Vec<Vec<char>>) -> Vec<Positi
 }
 
 fn solve(input: &str, is_p2: bool) -> Option<u32> {
-    let map: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+    let map: Map = Map::new(input);
     let mut visited: HashMap<Position, u32> = HashMap::new();
 
     // Input is assumed to be square with starting position in the centre
-    let map_size = map.len() as isize;
-    visited.insert((map_size / 2, map_size / 2), 0);
+    visited.insert((map.size / 2, map.size / 2), 0);
 
     let mut to_visit: Vec<Position> = vec![];
-    for plot in get_plots_adjacent_to(map_size / 2, map_size / 2, &map) {
+    for plot in get_plots_adjacent_to(map.size / 2, map.size / 2, &map) {
         to_visit.push(plot);
     }
 
