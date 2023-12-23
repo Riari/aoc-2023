@@ -113,7 +113,7 @@ fn settle(bricks: &mut Vec<Brick>) -> u32 {
     fell.len() as u32
 }
 
-fn disintegrate(bricks: &mut Vec<Brick>) {
+fn test_disintegration(bricks: &Vec<Brick>) {
     let mut unsafe_brick_indices = UNSAFE_BRICK_INDICES.lock().unwrap();
     for i_disintegrate in 0..bricks.len() {
         for i_test in 0..bricks.len() {
@@ -135,7 +135,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     let mut bricks = BRICKS.lock().unwrap();
 
     settle(&mut bricks);
-    disintegrate(&mut bricks);
+    test_disintegration(&mut bricks);
 
     let unsafe_brick_indices = UNSAFE_BRICK_INDICES.lock().unwrap();
 
