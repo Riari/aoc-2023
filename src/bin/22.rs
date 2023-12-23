@@ -29,6 +29,7 @@ impl Brick {
         self.layers = self.layers.start() - 1..=self.layers.end() - 1;
     }
 
+    // This could be optimised by partitioning on the Z axis to limit the number of bricks tested
     fn is_settled(&self, bricks: &Vec<Brick>, ignore: Option<&Brick>) -> bool {
         if self.positions.iter().any(|p| p.2 == 1) {
             return true;
