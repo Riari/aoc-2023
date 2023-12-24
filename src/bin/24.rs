@@ -1,7 +1,6 @@
-use std::collections::HashSet;
 use lazy_static::lazy_static;
 use itertools::Itertools;
-use z3::ast::{Ast, Int};
+use z3::{Config, Context, Solver, ast::{Ast, Int}, SatResult};
 
 advent_of_code::solution!(24);
 
@@ -38,7 +37,7 @@ impl Hailstone {
     }
 }
 
-pub fn part_one(input: &str) -> Option<u64> {
+fn parse(input: &str) -> Vec<Hailstone> {
     let mut hailstones: Vec<Hailstone> = vec![];
     for line in input.lines() {
         let numbers = RE_NUMBERS.find_iter(line).map(|x| x.as_str().parse().unwrap()).collect_vec();
@@ -47,6 +46,11 @@ pub fn part_one(input: &str) -> Option<u64> {
         hailstones.push(Hailstone::new(position, velocity));
     }
 
+    hailstones
+}
+
+pub fn part_one(input: &str) -> Option<u64> {
+    let hailstones = parse(input);
     let bounds = 200000000000000.0..=400000000000000.0;
     let intersects = hailstones
         .iter()
@@ -66,8 +70,40 @@ pub fn part_one(input: &str) -> Option<u64> {
     Some(intersects as u64)
 }
 
+// First time using Z3. This definitely feels like cheating, but there's no way I could solve
+// part 2 without it and that seems like a common theme in today's megasolutions thread!
 pub fn part_two(input: &str) -> Option<u64> {
-    None
+    let hailstones = parse(input);
+
+    let context: Context = Context::new(&Config::new());
+    let solver = Solver::new(&context);
+    
+    let cx = Int::new_const(&context, "x");
+    let cy = Int::new_const(&context, "y");
+    let cz = Int::new_const(&context, "z");
+    let cvx = Int::new_const(&context, "vx");
+    let cvy = Int::new_const(&context, "vy");
+    let cvz = Int::new_const(&context, "vz");
+
+    for i in 0..3 {
+        let x = Int::from_i64(&context, hailstones[i].position.0 as i64);
+        let y = Int::from_i64(&context, hailstones[i].position.1 as i64);
+        let z = Int::from_i64(&context, hailstones[i].position.2 as i64);
+        let vx = Int::from_i64(&context, hailstones[i].velocity.0 as i64);
+        let vy = Int::from_i64(&context, hailstones[i].velocity.1 as i64);
+        let vz = Int::from_i64(&context, hailstones[i].velocity.2 as i64);
+
+        let t = Int::new_const(&context, format!("t{i}"));
+        solver.assert(&t.gt(&Int::from_i64(&context, 0)));
+        solver.assert(&(cx.clone() + cvx.clone() * t.clone())._eq(&(x + vx * t.clone())));
+        solver.assert(&(cy.clone() + cvy.clone() * t.clone())._eq(&(y + vy * t.clone())));
+        solver.assert(&(cz.clone() + cvz.clone() * t.clone())._eq(&(z + vz * t.clone())));
+    }
+
+    assert_eq!(solver.check(), SatResult::Sat);
+    let result = solver.get_model().unwrap().eval(&(cx + cy + cz), true).unwrap();
+
+    result.as_u64()
 }
 
 #[cfg(test)]
