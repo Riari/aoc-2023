@@ -10,7 +10,10 @@ struct Map {
 
 impl Map {
     fn new() -> Self {
-        Map { source_ranges: Vec::new(), target_ranges: Vec::new() }
+        Map {
+            source_ranges: Vec::new(),
+            target_ranges: Vec::new(),
+        }
     }
 
     fn clear(&mut self) {
@@ -21,7 +24,15 @@ impl Map {
 
 fn parse(input: &str, seeds_as_ranges: bool) -> (Vec<Range<u64>>, Vec<Map>) {
     let mut lines = input.lines();
-    let seeds: Vec<u64> = lines.next().unwrap().split(": ").nth(1).unwrap().split(' ').map(|value| value.parse::<u64>().unwrap()).collect();
+    let seeds: Vec<u64> = lines
+        .next()
+        .unwrap()
+        .split(": ")
+        .nth(1)
+        .unwrap()
+        .split(' ')
+        .map(|value| value.parse::<u64>().unwrap())
+        .collect();
     let mut maps: Vec<Map> = Vec::new();
     let mut map = Map::new();
 
@@ -39,7 +50,10 @@ fn parse(input: &str, seeds_as_ranges: bool) -> (Vec<Range<u64>>, Vec<Map>) {
         }
 
         // If we get this far, the line should contain map values
-        let values: Vec<u64> = line.split(' ').map(|value| value.parse::<u64>().unwrap()).collect();
+        let values: Vec<u64> = line
+            .split(' ')
+            .map(|value| value.parse::<u64>().unwrap())
+            .collect();
         map.source_ranges.push(values[1]..values[1] + values[2]);
         map.target_ranges.push(values[0]..values[0] + values[2]);
     }
@@ -69,19 +83,22 @@ fn parse(input: &str, seeds_as_ranges: bool) -> (Vec<Range<u64>>, Vec<Map>) {
 fn solve(input: &str, as_ranges: bool) -> Option<u64> {
     let (seeds, maps) = parse(input, as_ranges);
     let mut locations: Vec<u64> = vec![];
-    
+
     for seed_range in seeds {
         for seed in seed_range {
             let mut value = seed;
             for map in maps.iter() {
                 for (range_index, source_range) in map.source_ranges.iter().enumerate() {
                     if source_range.contains(&value) {
-                        value = map.target_ranges[range_index].clone().nth((value - source_range.start) as usize).unwrap();
+                        value = map.target_ranges[range_index]
+                            .clone()
+                            .nth((value - source_range.start) as usize)
+                            .unwrap();
                         break;
                     }
                 }
             }
-    
+
             locations.push(value);
         }
     }

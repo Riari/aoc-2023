@@ -49,7 +49,9 @@ struct Step {
 
 impl Ord for Step {
     fn cmp(&self, other: &Self) -> Ordering {
-        other.cost.cmp(&self.cost)
+        other
+            .cost
+            .cmp(&self.cost)
             .then_with(|| other.state.position.cmp(&self.state.position))
     }
 }
@@ -62,10 +64,7 @@ impl PartialOrd for Step {
 
 impl Step {
     fn new(state: State, cost: u32) -> Self {
-        Self {
-            state,
-            cost,
-        }
+        Self { state, cost }
     }
 }
 
@@ -80,14 +79,20 @@ impl State {
 
     fn can_go(&self, direction: &Direction, grid: &Grid) -> bool {
         let modifier = direction.get_offset();
-        let (x, y) = (self.position.0 as isize + modifier.0, self.position.1 as isize + modifier.1);
+        let (x, y) = (
+            self.position.0 as isize + modifier.0,
+            self.position.1 as isize + modifier.1,
+        );
         x >= 0 && y >= 0 && x < grid[0].len() as isize && y < grid.len() as isize
     }
 }
 
 // Implementation of Dijkstra's algorithm that considers steps taken in a direction as well as path cost.
 fn solve(input: &str, min_straight_steps: u32, max_straight_steps: u32) -> Option<u32> {
-    let grid: Grid = input.lines().map(|l| l.chars().map(|c| c.to_digit(10).unwrap()).collect()).collect();
+    let grid: Grid = input
+        .lines()
+        .map(|l| l.chars().map(|c| c.to_digit(10).unwrap()).collect())
+        .collect();
 
     let start = (0, 0);
     let end = (grid[0].len() - 1, grid.len() - 1);
@@ -95,10 +100,29 @@ fn solve(input: &str, min_straight_steps: u32, max_straight_steps: u32) -> Optio
     let mut costs: HashMap<State, u32> = HashMap::new();
     let mut heap: BinaryHeap<Step> = BinaryHeap::new();
 
-    let directions = vec![Direction::North, Direction::East, Direction::South, Direction::West];
+    let directions = vec![
+        Direction::North,
+        Direction::East,
+        Direction::South,
+        Direction::West,
+    ];
 
-    costs.insert(State { position: start, entered_from: Direction::East, straight_steps: 0 }, 0);
-    costs.insert(State { position: start, entered_from: Direction::South, straight_steps: 0 }, 0);
+    costs.insert(
+        State {
+            position: start,
+            entered_from: Direction::East,
+            straight_steps: 0,
+        },
+        0,
+    );
+    costs.insert(
+        State {
+            position: start,
+            entered_from: Direction::South,
+            straight_steps: 0,
+        },
+        0,
+    );
     heap.push(Step::new(State::new(start, Direction::East, 0), 0));
 
     while let Some(Step { state, cost }) = heap.pop() {
@@ -124,18 +148,26 @@ fn solve(input: &str, min_straight_steps: u32, max_straight_steps: u32) -> Optio
             }
 
             let (offset_x, offset_y) = direction.get_offset();
-            let new_position = ((state.position.0 as isize + offset_x) as usize, (state.position.1 as isize + offset_y) as usize);
+            let new_position = (
+                (state.position.0 as isize + offset_x) as usize,
+                (state.position.1 as isize + offset_y) as usize,
+            );
             let neighbour = Step::new(
                 State::new(
                     new_position,
                     direction.clone(),
-                    if *direction == state.entered_from { state.straight_steps + 1 } else { 1 },
+                    if *direction == state.entered_from {
+                        state.straight_steps + 1
+                    } else {
+                        1
+                    },
                 ),
                 cost + grid[new_position.1][new_position.0],
             );
 
             if (*direction == state.entered_from || state.straight_steps >= min_straight_steps)
-                && neighbour.cost < *costs.get(&neighbour.state).unwrap_or(&u32::MAX) {
+                && neighbour.cost < *costs.get(&neighbour.state).unwrap_or(&u32::MAX)
+            {
                 heap.push(neighbour.clone());
                 costs.insert(neighbour.state, neighbour.cost);
             }

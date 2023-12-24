@@ -39,7 +39,8 @@ const W: Position = (-1, 0);
 fn walk(map: &Map, start_x: isize, start_y: isize, distance: usize) -> u64 {
     let mut accessible_plots: HashSet<Position> = HashSet::new();
     let mut seen: HashSet<Position> = HashSet::from([(start_x, start_y)]);
-    let mut to_visit: VecDeque<(isize, isize, usize)> = VecDeque::from([(start_x, start_y, distance)]);
+    let mut to_visit: VecDeque<(isize, isize, usize)> =
+        VecDeque::from([(start_x, start_y, distance)]);
 
     while let Some((x, y, steps)) = to_visit.pop_front() {
         if steps % 2 == 0 {
@@ -108,11 +109,11 @@ pub fn part_two(input: &str) -> Option<u64> {
     ]);
 
     Some(
-        odd_grids * odd +
-        even_grids * even +
-        corners.iter().sum::<u64>() +
-        (map_width + 1) * small.iter().sum::<u64>() +
-        map_width * large.iter().sum::<u64>()
+        odd_grids * odd
+            + even_grids * even
+            + corners.iter().sum::<u64>()
+            + (map_width + 1) * small.iter().sum::<u64>()
+            + map_width * large.iter().sum::<u64>(),
     )
 }
 

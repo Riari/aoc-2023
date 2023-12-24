@@ -1,6 +1,6 @@
+use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::collections::HashSet;
-use lazy_static::lazy_static;
 
 advent_of_code::solution!(10);
 
@@ -26,7 +26,7 @@ lazy_static! {
 fn apply_direction(coords: (usize, usize), direction: (isize, isize)) -> (usize, usize) {
     (
         (coords.0 as isize + direction.0) as usize,
-        (coords.1 as isize + direction.1) as usize
+        (coords.1 as isize + direction.1) as usize,
     )
 }
 
@@ -84,7 +84,12 @@ fn solve(input: &str, calculate_area: bool) -> Option<u32> {
 
         visited.insert(coords);
 
-        next_direction = PIPE_MAP.get(pipe).unwrap().get(&next_direction).unwrap().clone();
+        next_direction = PIPE_MAP
+            .get(pipe)
+            .unwrap()
+            .get(&next_direction)
+            .unwrap()
+            .clone();
         distance += 1;
     }
 

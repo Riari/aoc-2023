@@ -5,7 +5,11 @@ advent_of_code::solution!(12);
 // My solution for part 1 was very suboptimal and caused an explosion of memory usage in part 2, so I ended up
 // replacing it with a conversion of this C# solution by /u/yfilipov: https://www.reddit.com/r/adventofcode/comments/18ge41g/comment/kd0u7ej/
 
-fn count_arrangements(mut springs: &str, groups: &mut Vec<u64>, cache: &mut HashMap<String, u64>) -> u64 {
+fn count_arrangements(
+    mut springs: &str,
+    groups: &mut Vec<u64>,
+    cache: &mut HashMap<String, u64>,
+) -> u64 {
     loop {
         if groups.is_empty() {
             return if springs.contains('#') { 0 } else { 1 };
@@ -23,7 +27,8 @@ fn count_arrangements(mut springs: &str, groups: &mut Vec<u64>, cache: &mut Hash
         if springs.starts_with('?') {
             let functional = &mut format!(".{}", &springs[1..]);
             let damaged = &mut format!("#{}", &springs[1..]);
-            return process(functional, &mut groups.clone(), cache) + process(damaged, groups, cache);
+            return process(functional, &mut groups.clone(), cache)
+                + process(damaged, groups, cache);
         }
 
         if springs.starts_with('#') {
@@ -40,7 +45,9 @@ fn count_arrangements(mut springs: &str, groups: &mut Vec<u64>, cache: &mut Hash
             }
 
             if groups.len() > 1 {
-                if (springs.len() as u64) < groups[0] + 1 || springs.chars().nth(groups[0] as usize).unwrap() == '#' {
+                if (springs.len() as u64) < groups[0] + 1
+                    || springs.chars().nth(groups[0] as usize).unwrap() == '#'
+                {
                     return 0;
                 }
 
@@ -58,7 +65,11 @@ fn count_arrangements(mut springs: &str, groups: &mut Vec<u64>, cache: &mut Hash
     }
 }
 
-fn process(springs: &mut String, group_sizes: &mut Vec<u64>, cache: &mut HashMap<String, u64>) -> u64 {
+fn process(
+    springs: &mut String,
+    group_sizes: &mut Vec<u64>,
+    cache: &mut HashMap<String, u64>,
+) -> u64 {
     let mut key = String::new();
     key.push_str(springs);
     key.extend(group_sizes.iter().map(|c| c.to_string()));
@@ -78,7 +89,12 @@ fn solve(input: &str, unfold: bool) -> Option<u64> {
     for line in input.lines() {
         let mut parts = line.split(' ');
         let mut springs: String = parts.next().unwrap().to_owned();
-        let mut group_sizes: Vec<u64> = parts.next().unwrap().split(',').map(|c| c.parse::<u64>().unwrap()).collect();
+        let mut group_sizes: Vec<u64> = parts
+            .next()
+            .unwrap()
+            .split(',')
+            .map(|c| c.parse::<u64>().unwrap())
+            .collect();
 
         if unfold {
             let springs_copy = springs.clone();

@@ -1,6 +1,6 @@
+use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::sync::Mutex;
-use lazy_static::lazy_static;
 
 advent_of_code::solution!(4);
 
@@ -15,9 +15,15 @@ fn parse(input: &str) {
     }
 
     for (i, line) in input.lines().enumerate() {
-        let numbers = line.split(':').collect::<Vec<&str>>()[1].split(" | ").collect::<Vec<&str>>();
-        let winning = numbers[0].split_whitespace().map(|n| n.parse::<u32>().unwrap());
-        let have = numbers[1].split_whitespace().map(|n| n.parse::<u32>().unwrap());
+        let numbers = line.split(':').collect::<Vec<&str>>()[1]
+            .split(" | ")
+            .collect::<Vec<&str>>();
+        let winning = numbers[0]
+            .split_whitespace()
+            .map(|n| n.parse::<u32>().unwrap());
+        let have = numbers[1]
+            .split_whitespace()
+            .map(|n| n.parse::<u32>().unwrap());
         let matching_count = winning.filter(|n| have.clone().any(|m| m == *n)).count() as u32;
 
         // index => number of matching numbers, number of copies
@@ -40,11 +46,14 @@ fn solve(input: &str, award_cards: bool) -> Option<u32> {
         if award_cards {
             for win_index in 0..card.0 {
                 total_cards += card.1 as usize;
-                stack.get_mut(&(stack_index + win_index as usize + 1)).unwrap().1 += card.1;
+                stack
+                    .get_mut(&(stack_index + win_index as usize + 1))
+                    .unwrap()
+                    .1 += card.1;
             }
             continue;
         }
-        
+
         score += 2u32.pow(card.0 - 1);
     }
 

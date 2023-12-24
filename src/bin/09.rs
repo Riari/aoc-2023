@@ -3,7 +3,10 @@ advent_of_code::solution!(9);
 fn solve(input: &str, get_prev: bool) -> Option<i64> {
     let mut sequences: Vec<i64> = vec![];
     for line in input.lines() {
-        let mut stack = vec![line.split(' ').map(|s| s.parse::<i64>().unwrap()).collect::<Vec<i64>>()];
+        let mut stack = vec![line
+            .split(' ')
+            .map(|s| s.parse::<i64>().unwrap())
+            .collect::<Vec<i64>>()];
         while stack.last().unwrap().iter().any(|v| *v != 0) {
             let mut diffs: Vec<i64> = vec![];
             for value in stack.last().unwrap().windows(2) {
@@ -30,7 +33,6 @@ fn solve(input: &str, get_prev: bool) -> Option<i64> {
             }
             sequences.push(stack[0][stack[0].len() - 1]);
         }
-
     }
 
     Some(sequences.iter().sum())

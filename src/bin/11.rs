@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use itertools::Itertools;
+use std::collections::HashSet;
 
 advent_of_code::solution!(11);
 
@@ -39,8 +39,16 @@ fn solve(input: &str, expand_by: isize) -> Option<u64> {
 
     let mut distance_sum = 0;
     for (from, to) in galaxies.iter().tuple_combinations() {
-        let range_x = if from.0 < to.0 { from.0..to.0 } else { to.0..from.0 };
-        let range_y = if from.1 < to.1 { from.1..to.1 } else { to.1..from.1 };
+        let range_x = if from.0 < to.0 {
+            from.0..to.0
+        } else {
+            to.0..from.0
+        };
+        let range_y = if from.1 < to.1 {
+            from.1..to.1
+        } else {
+            to.1..from.1
+        };
 
         for x in empty_cols.iter() {
             if range_x.contains(&x) {

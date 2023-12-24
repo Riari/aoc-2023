@@ -1,11 +1,13 @@
-use std::{collections::HashMap, cmp::{min, max}};
 use lazy_static::lazy_static;
+use std::{
+    cmp::{max, min},
+    collections::HashMap,
+};
 
 advent_of_code::solution!(19);
 
 lazy_static! {
     static ref RE_NUMBERS: regex::Regex = regex::Regex::new(r"(\d+)").unwrap();
-
     static ref ACCEPTED: String = "A".to_string();
     static ref REJECTED: String = "R".to_string();
     static ref PROCESSED: Vec<String> = vec![ACCEPTED.clone(), REJECTED.clone()];
@@ -68,7 +70,7 @@ impl Workflow {
                     Operator::LessThan => ratings[rule.category] < rule.target_rating,
                     Operator::GreaterThan => ratings[rule.category] > rule.target_rating,
                 }) {
-                  continue;  
+                    continue;
                 }
             }
 
@@ -110,32 +112,43 @@ fn parse(input: &str) -> (HashMap<String, Workflow>, Vec<Part>) {
                         'm' => 1,
                         'a' => 2,
                         's' => 3,
-                        _ => panic!("Invalid category")
+                        _ => panic!("Invalid category"),
                     };
                     let operator = match target_op_rating.chars().nth(1).unwrap() {
                         '<' => Operator::LessThan,
                         '>' => Operator::GreaterThan,
-                        _ => panic!("Invalid operator")
+                        _ => panic!("Invalid operator"),
                     };
-                    let target_rating = RE_NUMBERS.find(target_op_rating).unwrap().as_str().parse().unwrap();
+                    let target_rating = RE_NUMBERS
+                        .find(target_op_rating)
+                        .unwrap()
+                        .as_str()
+                        .parse()
+                        .unwrap();
                     let result = Result::from_str(result_str);
                     steps.push(Step {
-                        rule: Some(
-                            Rule {
-                                category,
-                                target_rating,
-                                operator
-                            }
-                        ),
-                        destination: if result == Result::Destination { Some(result_str.to_string()) } else { None },
-                        result
+                        rule: Some(Rule {
+                            category,
+                            target_rating,
+                            operator,
+                        }),
+                        destination: if result == Result::Destination {
+                            Some(result_str.to_string())
+                        } else {
+                            None
+                        },
+                        result,
                     });
                 } else {
                     let result = Result::from_str(step_str);
                     steps.push(Step {
                         rule: None,
                         result: result.clone(),
-                        destination: if result == Result::Destination { Some(step_str.to_string()) } else { None }
+                        destination: if result == Result::Destination {
+                            Some(step_str.to_string())
+                        } else {
+                            None
+                        },
                     });
                 }
             }
@@ -145,8 +158,14 @@ fn parse(input: &str) -> (HashMap<String, Workflow>, Vec<Part>) {
             continue;
         }
 
-        let ratings: Vec<u64> = RE_NUMBERS.find_iter(line).map(|m| m.as_str().parse().unwrap()).collect();
-        parts.push(Part { status: "in".to_string(), ratings });
+        let ratings: Vec<u64> = RE_NUMBERS
+            .find_iter(line)
+            .map(|m| m.as_str().parse().unwrap())
+            .collect();
+        parts.push(Part {
+            status: "in".to_string(),
+            ratings,
+        });
     }
 
     (workflows, parts)
@@ -155,13 +174,21 @@ fn parse(input: &str) -> (HashMap<String, Workflow>, Vec<Part>) {
 pub fn part_one(input: &str) -> Option<u64> {
     let (workflows, mut parts) = parse(input);
 
-    while parts.iter().filter(|p| !PROCESSED.contains(&p.status)).count() > 0 {
+    while parts
+        .iter()
+        .filter(|p| !PROCESSED.contains(&p.status))
+        .count()
+        > 0
+    {
         for i in (0..parts.len()).rev() {
             if PROCESSED.contains(&parts[i].status) {
                 continue;
             }
 
-            let step = workflows.get(&parts[i].status).unwrap().accepts(&parts[i].ratings);
+            let step = workflows
+                .get(&parts[i].status)
+                .unwrap()
+                .accepts(&parts[i].ratings);
             parts[i].status = match step.result {
                 Result::Accept => ACCEPTED.to_string(),
                 Result::Reject => REJECTED.to_string(),
@@ -183,11 +210,15 @@ pub fn part_one(input: &str) -> Option<u64> {
 }
 
 // Heavily based on HyperNeutrino's solution: https://www.youtube.com/watch?v=3RwIpUegdU4
-fn count_accepted_combos(ranges: &Vec<(u64, u64)>, status: String, workflows: &HashMap<String, Workflow>) -> u64 {
+fn count_accepted_combos(
+    ranges: &Vec<(u64, u64)>,
+    status: String,
+    workflows: &HashMap<String, Workflow>,
+) -> u64 {
     if status == *REJECTED {
         return 0;
     }
-    
+
     if status == *ACCEPTED {
         let mut combos = 1;
         for range in ranges {
@@ -222,7 +253,7 @@ fn count_accepted_combos(ranges: &Vec<(u64, u64)>, status: String, workflows: &H
             combos += count_accepted_combos(
                 &ranges_clone,
                 step.result.to_string(step.destination.clone()),
-                workflows
+                workflows,
             );
         }
 
@@ -239,7 +270,7 @@ fn count_accepted_combos(ranges: &Vec<(u64, u64)>, status: String, workflows: &H
         combos += count_accepted_combos(
             &ranges_clone,
             fallback.result.to_string(fallback.destination.clone()),
-            workflows
+            workflows,
         );
     }
 

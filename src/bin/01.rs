@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use lazy_static::lazy_static;
 use regex::Regex;
+use std::collections::HashMap;
 
 advent_of_code::solution!(1);
 
@@ -16,7 +16,10 @@ lazy_static! {
         ("seven".to_string(), 7),
         ("eight".to_string(), 8),
         ("nine".to_string(), 9)
-    ].iter().cloned().collect();
+    ]
+    .iter()
+    .cloned()
+    .collect();
 }
 
 fn solve(input: &str, with_words: bool) -> Option<u32> {
@@ -34,7 +37,7 @@ fn solve(input: &str, with_words: bool) -> Option<u32> {
             let mut match_count = 0;
             for (i, chars) in line.chars().collect::<Vec<char>>().windows(5).enumerate() {
                 let substring: String = chars.iter().collect();
-                
+
                 for (word, digit) in WORD_MAP.iter() {
                     if let Some(position) = substring.find(word) {
                         digits.insert(i + position, *digit);

@@ -1,6 +1,6 @@
-use std::collections::{HashMap, HashSet, VecDeque};
-use itertools::Itertools;
 use advent_of_code::lcm_of_vec;
+use itertools::Itertools;
+use std::collections::{HashMap, HashSet, VecDeque};
 
 advent_of_code::solution!(20);
 
@@ -17,7 +17,7 @@ trait Module {
 }
 
 struct FlipFlop {
-    state: u8
+    state: u8,
 }
 
 impl Module for FlipFlop {
@@ -43,7 +43,7 @@ struct Conjunction {
     inputs: HashSet<String>,
     hi_senders: HashSet<String>,
     lo_senders: HashSet<String>,
-    output: u8
+    output: u8,
 }
 
 impl Module for Conjunction {
@@ -61,7 +61,11 @@ impl Module for Conjunction {
             self.hi_senders.remove(module);
         }
 
-        self.output = if self.hi_senders.len() == self.inputs.len() { LO } else { HI };
+        self.output = if self.hi_senders.len() == self.inputs.len() {
+            LO
+        } else {
+            HI
+        };
         true
     }
 
@@ -96,15 +100,16 @@ fn parse(input: &str) -> (ModuleMap, ConnectionMap) {
     for line in input.lines() {
         let mut parts = line.split(" -> ");
         let identifier = parts.next().unwrap();
-        let outputs: Vec<String> = parts.next().unwrap().split(", ").map(|s| s.to_string()).collect();
+        let outputs: Vec<String> = parts
+            .next()
+            .unwrap()
+            .split(", ")
+            .map(|s| s.to_string())
+            .collect();
 
         if identifier.starts_with("%") {
             let id = identifier[1..].to_string();
-            modules.insert(
-                id.clone(),
-                Box::new(FlipFlop {
-                    state: LO
-                }));
+            modules.insert(id.clone(), Box::new(FlipFlop { state: LO }));
             connections.insert(id, outputs);
         } else if identifier.starts_with("&") {
             let id = identifier[1..].to_string();
@@ -114,15 +119,12 @@ fn parse(input: &str) -> (ModuleMap, ConnectionMap) {
                     inputs: HashSet::new(),
                     hi_senders: HashSet::new(),
                     lo_senders: HashSet::new(),
-                    output: HI
-                }));
+                    output: HI,
+                }),
+            );
             connections.insert(id, outputs);
         } else if identifier == "broadcaster" {
-            modules.insert(
-                identifier.to_string(),
-                Box::new(Broadcast {
-                    output: LO
-                }));
+            modules.insert(identifier.to_string(), Box::new(Broadcast { output: LO }));
             connections.insert(identifier.to_string(), outputs);
         } else {
             panic!("Unknown module type: {}", identifier);
@@ -142,7 +144,6 @@ fn parse(input: &str) -> (ModuleMap, ConnectionMap) {
 
 fn solve(input: &str, is_p2: bool) -> Option<u64> {
     let (mut modules, connections) = parse(input);
-
 
     let sender_to_rx: &String;
     let mut cycle_map: HashMap<String, u64> = HashMap::new();

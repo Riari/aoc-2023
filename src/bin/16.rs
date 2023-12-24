@@ -23,8 +23,18 @@ struct Beam<'a> {
 }
 
 impl<'a> Beam<'a> {
-    fn new(grid: &'a Grid, visited: &'a RefCell<VisitedSet>, position: Position, direction: Direction) -> Self {
-        Self { grid, visited, position, direction }
+    fn new(
+        grid: &'a Grid,
+        visited: &'a RefCell<VisitedSet>,
+        position: Position,
+        direction: Direction,
+    ) -> Self {
+        Self {
+            grid,
+            visited,
+            position,
+            direction,
+        }
     }
 
     fn get_current_tile(&self) -> char {
@@ -38,7 +48,10 @@ impl<'a> Beam<'a> {
 
         (0..self.grid[0].len()).contains(&(next_x as usize))
             && (0..self.grid.len()).contains(&(next_y as usize))
-            && !self.visited.borrow().contains(&(((next_x as usize), (next_y as usize)), direction))
+            && !self
+                .visited
+                .borrow()
+                .contains(&(((next_x as usize), (next_y as usize)), direction))
     }
 
     fn advance(&mut self) {
@@ -48,7 +61,9 @@ impl<'a> Beam<'a> {
             let (next_x, next_y) = ((px as isize + dx), (py as isize + dy));
 
             self.position = ((next_x as usize), (next_y as usize));
-            self.visited.borrow_mut().insert((self.position, self.direction));
+            self.visited
+                .borrow_mut()
+                .insert((self.position, self.direction));
 
             if self.get_current_tile() != '.' {
                 break;
@@ -75,30 +90,26 @@ impl<'a> Beam<'a> {
                 '|' if self.direction == WEST || self.direction == EAST => {
                     new_beam = self.try_split(NORTH);
                     SOUTH
-                },
+                }
                 '-' if self.direction == NORTH || self.direction == SOUTH => {
                     new_beam = self.try_split(EAST);
                     WEST
+                }
+                '/' => match self.direction {
+                    EAST => NORTH,
+                    SOUTH => WEST,
+                    NORTH => EAST,
+                    WEST => SOUTH,
+                    _ => panic!("Invalid direction!"),
                 },
-                '/' => {
-                    match self.direction {
-                        EAST => NORTH,
-                        SOUTH => WEST,
-                        NORTH => EAST,
-                        WEST => SOUTH,
-                        _ => panic!("Invalid direction!"),
-                    }
+                '\\' => match self.direction {
+                    EAST => SOUTH,
+                    SOUTH => EAST,
+                    NORTH => WEST,
+                    WEST => NORTH,
+                    _ => panic!("Invalid direction!"),
                 },
-                '\\' => {
-                    match self.direction {
-                        EAST => SOUTH,
-                        SOUTH => EAST,
-                        NORTH => WEST,
-                        WEST => NORTH,
-                        _ => panic!("Invalid direction!"),
-                    }
-                },
-                _ => self.direction
+                _ => self.direction,
             };
         }
 
@@ -117,7 +128,9 @@ fn parse(input: &str) -> Grid {
 
 fn simulate(grid: &Grid, start_position: Position, start_direction: Direction) -> Option<u32> {
     let visited: RefCell<VisitedSet> = RefCell::new(HashSet::new());
-    visited.borrow_mut().insert((start_position, start_direction));
+    visited
+        .borrow_mut()
+        .insert((start_position, start_direction));
     let mut beams: Vec<Beam> = vec![Beam::new(&grid, &visited, start_position, start_direction)];
 
     loop {
@@ -127,14 +140,14 @@ fn simulate(grid: &Grid, start_position: Position, start_direction: Direction) -
                 Ok(Some(new_beam)) => {
                     beams.push(new_beam);
                 }
-                Ok(None) => {},
+                Ok(None) => {}
                 Err(Some(new_beam)) => {
                     beams.push(new_beam);
                     beams.remove(i);
                 }
                 Err(None) => {
                     beams.remove(i);
-                },
+                }
             }
         }
 
@@ -167,7 +180,10 @@ pub fn part_two(input: &str) -> Option<u32> {
 
     for y in 0..grid.len() {
         max_energised = max(simulate(&grid, (0, y), EAST)?, max_energised);
-        max_energised = max(simulate(&grid, (grid[0].len() - 1, y), WEST)?, max_energised);
+        max_energised = max(
+            simulate(&grid, (grid[0].len() - 1, y), WEST)?,
+            max_energised,
+        );
     }
 
     Some(max_energised as u32)

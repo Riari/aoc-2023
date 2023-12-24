@@ -1,7 +1,7 @@
-use std::{ops::RangeInclusive, collections::HashSet};
-use std::sync::Mutex;
-use lazy_static::lazy_static;
 use itertools::Itertools;
+use lazy_static::lazy_static;
+use std::sync::Mutex;
+use std::{collections::HashSet, ops::RangeInclusive};
 
 advent_of_code::solution!(22);
 
@@ -41,12 +41,16 @@ impl Brick {
             }
 
             if !self.layers.contains(&(other.layers.start() + 1))
-                && !self.layers.contains(&(other.layers.end() + 1)) {
+                && !self.layers.contains(&(other.layers.end() + 1))
+            {
                 continue;
             }
 
             for position in &other.positions {
-                if self.positions.contains(&(position.0, position.1, position.2 + 1)) {
+                if self
+                    .positions
+                    .contains(&(position.0, position.1, position.2 + 1))
+                {
                     return true;
                 }
             }
@@ -65,9 +69,20 @@ fn parse(input: &str) {
 
     for line in input.lines() {
         let (a, b) = line.split_once("~").unwrap();
-        let (start_x, start_y, start_z) = a.split(",").map(|s| s.parse().unwrap()).collect_tuple().unwrap();
-        let (end_x, end_y, end_z) = b.split(",").map(|s| s.parse().unwrap()).collect_tuple().unwrap();
-        let mut brick = Brick { positions: vec![], layers: start_z..=end_z };
+        let (start_x, start_y, start_z) = a
+            .split(",")
+            .map(|s| s.parse().unwrap())
+            .collect_tuple()
+            .unwrap();
+        let (end_x, end_y, end_z) = b
+            .split(",")
+            .map(|s| s.parse().unwrap())
+            .collect_tuple()
+            .unwrap();
+        let mut brick = Brick {
+            positions: vec![],
+            layers: start_z..=end_z,
+        };
         for x in start_x..=end_x {
             for y in start_y..=end_y {
                 for z in start_z..=end_z {
@@ -80,7 +95,8 @@ fn parse(input: &str) {
     }
 
     bricks.sort_by(|a, b| {
-        a.positions.iter()
+        a.positions
+            .iter()
             .map(|p| p.2)
             .min()
             .unwrap()

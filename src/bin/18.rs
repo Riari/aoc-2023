@@ -21,13 +21,13 @@ fn solve(input: &str, p2: bool) -> Option<i64> {
             distance = i64::from_str_radix(&hex[0..=4], 16).unwrap();
             direction = &hex[5..];
         }
-        
+
         match direction {
             "U" | "3" => position.1 -= distance,
             "R" | "0" => position.0 += distance,
             "D" | "1" => position.1 += distance,
             "L" | "2" => position.0 -= distance,
-            _ => unreachable!()
+            _ => unreachable!(),
         }
 
         vertices.push(position);
@@ -41,7 +41,9 @@ fn solve(input: &str, p2: bool) -> Option<i64> {
             let (x2, y2) = w[1];
             x1 * y2 - x2 * y1
         })
-        .sum::<i64>().abs() / 2;
+        .sum::<i64>()
+        .abs()
+        / 2;
 
     Some(area + perimeter / 2 + 1)
 }

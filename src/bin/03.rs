@@ -2,9 +2,17 @@ use std::collections::HashMap;
 
 advent_of_code::solution!(3);
 
-fn test_adjacency(mut start_x: usize, end_x: usize, mut start_y: usize, lines: Vec<&str>, only_gears: bool) -> Option<(usize, usize)> {
+fn test_adjacency(
+    mut start_x: usize,
+    end_x: usize,
+    mut start_y: usize,
+    lines: Vec<&str>,
+    only_gears: bool,
+) -> Option<(usize, usize)> {
     let mut end_y = start_y + 1;
-    if start_x > 0 { start_x = start_x - 1 };
+    if start_x > 0 {
+        start_x = start_x - 1
+    };
     if start_y > 0 {
         start_y = start_y - 1;
         end_y = start_y + 2;
@@ -55,7 +63,9 @@ fn solve(input: &str, get_gear_ratios: bool) -> Option<u32> {
             }
 
             if (digit.is_none() || x == length - 1) && number.len() > 0 {
-                if let Some(position) = test_adjacency(x - number.len(), x, y, lines.clone(), get_gear_ratios) {
+                if let Some(position) =
+                    test_adjacency(x - number.len(), x, y, lines.clone(), get_gear_ratios)
+                {
                     let value = number.iter().fold(0, |acc, elem| acc * 10 + elem);
 
                     if get_gear_ratios {
@@ -71,7 +81,13 @@ fn solve(input: &str, get_gear_ratios: bool) -> Option<u32> {
     }
 
     if get_gear_ratios {
-        return Some(gears.iter().filter(|entry| entry.1.len() == 2).map(|entry| entry.1.iter().product::<u32>()).sum());
+        return Some(
+            gears
+                .iter()
+                .filter(|entry| entry.1.len() == 2)
+                .map(|entry| entry.1.iter().product::<u32>())
+                .sum(),
+        );
     }
 
     Some(part_numbers.iter().sum())

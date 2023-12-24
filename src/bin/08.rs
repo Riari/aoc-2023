@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use advent_of_code::lcm_of_vec;
+use std::collections::HashMap;
 
 advent_of_code::solution!(8);
 
@@ -41,11 +41,10 @@ fn solve(input: &str, ghost_mode: bool) -> Option<u64> {
             match instructions[steps % instructions.len()] {
                 'L' => positions[i] = current_node.0,
                 'R' => positions[i] = current_node.1,
-                _ => unreachable!()
+                _ => unreachable!(),
             }
 
-            if !ghost_mode && positions[i] == "ZZZ"
-                || ghost_mode && positions[i].ends_with('Z') {
+            if !ghost_mode && positions[i] == "ZZZ" || ghost_mode && positions[i].ends_with('Z') {
                 loop_sizes.insert(i as u64, steps as u64 + 1);
             }
         }

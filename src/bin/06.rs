@@ -8,7 +8,9 @@ fn extract_values(line: &str, concat_values: bool) -> Vec<u64> {
         return vec![thing.parse::<u64>().unwrap()];
     }
 
-    values.map(|v| v.parse::<u64>().unwrap()).collect::<Vec<u64>>()
+    values
+        .map(|v| v.parse::<u64>().unwrap())
+        .collect::<Vec<u64>>()
 }
 
 fn solve(input: &str, concat_values: bool) -> Option<u64> {
@@ -37,7 +39,12 @@ fn solve(input: &str, concat_values: bool) -> Option<u64> {
         records_list.push(records);
     }
 
-    Some(records_list.iter().map(|records| records.len() as u64).product())
+    Some(
+        records_list
+            .iter()
+            .map(|records| records.len() as u64)
+            .product(),
+    )
 }
 
 pub fn part_one(input: &str) -> Option<u64> {

@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use std::cmp::Ordering;
 use lazy_static::lazy_static;
+use std::cmp::Ordering;
+use std::collections::HashMap;
 
 advent_of_code::solution!(7);
 
@@ -19,56 +19,70 @@ lazy_static! {
         ('4', 4),
         ('3', 3),
         ('2', 2),
-    ].iter().cloned().collect();
+    ]
+    .iter()
+    .cloned()
+    .collect();
     static ref JOKER_VALUE: u32 = 1;
 }
 
 struct Hand {
     cards: Vec<u32>,
     score: u32,
-    bid: u32
+    bid: u32,
 }
 
 fn solve(input: &str, j_as_joker: bool) -> Option<u32> {
     let mut card_map: HashMap<u32, u32> = HashMap::new();
-    let mut set: Vec<Hand> = input.lines().map(|line| {
-        card_map.clear();
+    let mut set: Vec<Hand> = input
+        .lines()
+        .map(|line| {
+            card_map.clear();
 
-        let parts = line.split_whitespace().collect::<Vec<_>>();
-        let mut cards: Vec<u32> = Vec::new();
-        let mut joker_count = 0;
-        for c in parts[0].chars() {
-            let mut strength: u32 = CARD_TO_STRENGTH[&c];
-            if j_as_joker && c == 'J' {
-                strength = *JOKER_VALUE;
-                joker_count += 1;
-            } else {
-                *card_map.entry(strength).or_insert(0) += 1;
+            let parts = line.split_whitespace().collect::<Vec<_>>();
+            let mut cards: Vec<u32> = Vec::new();
+            let mut joker_count = 0;
+            for c in parts[0].chars() {
+                let mut strength: u32 = CARD_TO_STRENGTH[&c];
+                if j_as_joker && c == 'J' {
+                    strength = *JOKER_VALUE;
+                    joker_count += 1;
+                } else {
+                    *card_map.entry(strength).or_insert(0) += 1;
+                }
+
+                cards.push(strength);
             }
 
-            cards.push(strength);
-        }
+            let bid = parts[1].parse().unwrap();
 
-        let bid = parts[1].parse().unwrap();
+            let mut group_sizes: Vec<u32> = card_map.values().cloned().collect();
+            group_sizes.sort();
+            group_sizes.reverse();
 
-        let mut group_sizes: Vec<u32> = card_map.values().cloned().collect();
-        group_sizes.sort();
-        group_sizes.reverse();
+            if j_as_joker {
+                if joker_count == 5 {
+                    return Hand {
+                        cards,
+                        score: 15,
+                        bid,
+                    };
+                }
 
-        if j_as_joker {
-            if joker_count == 5 {
-                return Hand { cards, score: 15, bid };
+                group_sizes[0] += joker_count;
             }
 
-            group_sizes[0] += joker_count;
-        }
+            group_sizes = group_sizes.into_iter().filter(|count| *count > 1).collect();
+            let g1 = group_sizes.get(0).unwrap_or(&0);
+            let g2 = group_sizes.get(1).unwrap_or(&0);
 
-        group_sizes = group_sizes.into_iter().filter(|count| *count > 1).collect();
-        let g1 = group_sizes.get(0).unwrap_or(&0);
-        let g2 = group_sizes.get(1).unwrap_or(&0);
-
-        Hand { cards, score: 3 * g1 + g2, bid }
-    }).collect();
+            Hand {
+                cards,
+                score: 3 * g1 + g2,
+                bid,
+            }
+        })
+        .collect();
 
     set.sort_by(|a, b| {
         let score_order = a.score.cmp(&b.score);

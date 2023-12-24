@@ -1,6 +1,9 @@
-use lazy_static::lazy_static;
 use itertools::Itertools;
-use z3::{Config, Context, Solver, ast::{Ast, Int}, SatResult};
+use lazy_static::lazy_static;
+use z3::{
+    ast::{Ast, Int},
+    Config, Context, SatResult, Solver,
+};
 
 advent_of_code::solution!(24);
 
@@ -17,10 +20,7 @@ struct Hailstone {
 
 impl Hailstone {
     fn new(position: Position, velocity: Position) -> Self {
-        Self {
-            position,
-            velocity,
-        }
+        Self { position, velocity }
     }
 
     fn intersect(&self, other: &Hailstone) -> Option<(f64, f64)> {
@@ -30,17 +30,23 @@ impl Hailstone {
             return None;
         }
 
-        let x = (m1 * self.position.0 - m2 * other.position.0 + other.position.1 - self.position.1) / (m1 - m2);
-        let y = (m1 * m2 * (other.position.0 - self.position.0) + m2 * self.position.1 - m1 * other.position.1) / (m2 - m1);
+        let x = (m1 * self.position.0 - m2 * other.position.0 + other.position.1 - self.position.1)
+            / (m1 - m2);
+        let y = (m1 * m2 * (other.position.0 - self.position.0) + m2 * self.position.1
+            - m1 * other.position.1)
+            / (m2 - m1);
 
-        Some((x,y))
+        Some((x, y))
     }
 }
 
 fn parse(input: &str) -> Vec<Hailstone> {
     let mut hailstones: Vec<Hailstone> = vec![];
     for line in input.lines() {
-        let numbers = RE_NUMBERS.find_iter(line).map(|x| x.as_str().parse().unwrap()).collect_vec();
+        let numbers = RE_NUMBERS
+            .find_iter(line)
+            .map(|x| x.as_str().parse().unwrap())
+            .collect_vec();
         let position = (numbers[0], numbers[1], numbers[2]);
         let velocity = (numbers[3], numbers[4], numbers[5]);
         hailstones.push(Hailstone::new(position, velocity));
@@ -77,7 +83,7 @@ pub fn part_two(input: &str) -> Option<u64> {
 
     let context: Context = Context::new(&Config::new());
     let solver = Solver::new(&context);
-    
+
     let cx = Int::new_const(&context, "x");
     let cy = Int::new_const(&context, "y");
     let cz = Int::new_const(&context, "z");
@@ -101,7 +107,11 @@ pub fn part_two(input: &str) -> Option<u64> {
     }
 
     assert_eq!(solver.check(), SatResult::Sat);
-    let result = solver.get_model().unwrap().eval(&(cx + cy + cz), true).unwrap();
+    let result = solver
+        .get_model()
+        .unwrap()
+        .eval(&(cx + cy + cz), true)
+        .unwrap();
 
     result.as_u64()
 }

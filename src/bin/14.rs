@@ -43,7 +43,7 @@ fn tilt(platform: &mut Platform, offset: isize, horizontally: bool) {
                     }
                 } else {
                     let move_to = (*y as isize + offset) as usize;
-                    
+
                     if platform[move_to][*x] == '.' {
                         platform[*y][*x] = '.';
                         platform[move_to][*x] = 'O';

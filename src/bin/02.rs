@@ -19,7 +19,10 @@ fn solve(input: &str, powers: bool) -> Option<u32> {
             ("red".to_string(), if powers { 0 } else { MAX_RED }),
             ("green".to_string(), if powers { 0 } else { MAX_GREEN }),
             ("blue".to_string(), if powers { 0 } else { MAX_BLUE }),
-        ].iter().cloned().collect();
+        ]
+        .iter()
+        .cloned()
+        .collect();
 
         parts.next().unwrap().split(';').for_each(|list| {
             list.split(',').for_each(|cube| {
